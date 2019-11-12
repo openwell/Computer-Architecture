@@ -2,20 +2,28 @@
 
 import sys
 
+HALT = 1
+PRINT_TOM = 2
+PRINT_NUM = 3
+SAVE = 4
+PRINT_REG = 5
+ADD = 6
 class CPU:
     """Main CPU class."""
 
     def __init__(self):
         """Construct a new CPU."""
+        # Add list properties to the CPU class to hold 256 bytes of memory and 8 general-purpose registers.
         self.reg = [0] * 8
         self.pc = 0
-        self.ram = {}
+        self.ram = [0] * 128
+        self.ir = None
 
     def ram_read(self, index):
-        return self.reg[index]
-    def ram_write(self, add, value):
-        self.reg[add] = value
-        return 
+        # address
+        return self.ram[index]
+    def ram_write(self, index, value):
+        self.ram[index] = value
         # Memory Address Register (MAR) and the Memory Data Register (MDR).
 
     def load(self):
@@ -36,7 +44,9 @@ class CPU:
         ]
 
         for instruction in program:
-            self.ram[address] = instruction
+            # no need for conversion its done automatically 
+            # self.ram[address] = instruction
+            self.ram_write(address, instruction)
             address += 1
 
 
@@ -47,15 +57,6 @@ class CPU:
             self.reg[reg_a] += self.reg[reg_b]
         elif op == "SUB":
             self.reg[reg_a] -= self.reg[reg_b]
-        elif op == "HLT":
-            self.reg[reg_a] -= self.reg[reg_b]
-        elif op == "SAVE":
-            self.reg[reg_a] -= self.reg[reg_b]
-        elif op == "PRINT_NUM":
-            self.reg[reg_a] -= self.reg[reg_b]
-        elif op == "PRINT_REG":
-            self.reg[reg_a] -= self.reg[reg_b]
-            
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -81,24 +82,46 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        HALT = 1
-        PRINT_TOM = 2
-        PRINT_NUM = 3
-        SAVE = 4
-        PRINT_REG = 5
-        ADD = 6
-        IR = None
+        # as the ram digits been converted to decimal
         running = True
         # looks like we need a converter for the binary
         while running:
-
-            command = self.ram_read(self, 1)
+            command = self.ram_read(self.pc)
             if command == SAVE:
-                return
+                self.ir = command
+                instruction_size = 3
+                num = self.ram[self.pc + 1]
+                reg = self.ram[self.pc + 2]
+                self.reg[reg] = num
+            elif command == PRINT_NUM:
+                self.ir = command
+                instruction_size = 2
+                num = self.ram[self.pc + 1]
+                print(num)
+            elif command == SAVE:
+                self.ir = command
+                instruction_size = 3
+                num = self.ram[self.pc + 1]
+                reg = self.ram[self.pc + 2]
+                self.reg[reg] = num
+            elif command == ADD:
+                self.ir = command
+                instruction_size = 3
+                reg_a = self.ram[self.pc + 1]
+                reg_b = self.ram[self.pc + 2]
+                self.reg[reg_a] += self.reg[reg_b]
+                # don't understand
             elif command == PRINT_REG:
-                pass
+                self.ir = command
+                instruction_size = 2
+                reg = self.ram[pc + 1]
+                print(self.reg[reg])
+            elif command == HALT:
+                self.ir = command
+                instruction_size = 1
+                running = False
             else:
                 print(f"Unknown Instruction {command}")
                 sys.exit(1)
 
-            self.pc += 1
+        self.pc += instruction_size
