@@ -7,7 +7,16 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        pass
+        self.reg = [0] * 8
+        self.pc = 0
+        self.ram = {}
+
+    def ram_read(self, index):
+        return self.reg[index]
+    def ram_write(self, add, value):
+        self.reg[add] = value
+        return 
+        # Memory Address Register (MAR) and the Memory Data Register (MDR).
 
     def load(self):
         """Load a program into memory."""
@@ -36,7 +45,17 @@ class CPU:
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-        #elif op == "SUB": etc
+        elif op == "SUB":
+            self.reg[reg_a] -= self.reg[reg_b]
+        elif op == "HLT":
+            self.reg[reg_a] -= self.reg[reg_b]
+        elif op == "SAVE":
+            self.reg[reg_a] -= self.reg[reg_b]
+        elif op == "PRINT_NUM":
+            self.reg[reg_a] -= self.reg[reg_b]
+        elif op == "PRINT_REG":
+            self.reg[reg_a] -= self.reg[reg_b]
+            
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -62,4 +81,24 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        pass
+        HALT = 1
+        PRINT_TOM = 2
+        PRINT_NUM = 3
+        SAVE = 4
+        PRINT_REG = 5
+        ADD = 6
+        IR = None
+        running = True
+        # looks like we need a converter for the binary
+        while running:
+
+            command = self.ram_read(self, 1)
+            if command == SAVE:
+                return
+            elif command == PRINT_REG:
+                pass
+            else:
+                print(f"Unknown Instruction {command}")
+                sys.exit(1)
+
+            self.pc += 1
