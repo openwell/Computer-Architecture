@@ -6,7 +6,7 @@ import sys
 HALT = 1
 PRINT_TOM = 2
 PRINT_NUM = 3
-SAVE = 4
+SAVE = 130 #4
 PRINT_REG = 5
 ADD = 6
 
@@ -57,6 +57,7 @@ def load_memory(filename):
 
                 # increment the address
                 address += 1
+        print(memory)
 
 
     except FileNotFoundError:

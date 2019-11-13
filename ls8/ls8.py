@@ -6,8 +6,7 @@ import sys
 from cpu import *
 
 cpu = CPU()
-
-cpu.load()
-cpu.run()
-
+# cpu.load()
+cpu.load('./ls8/examples/mult.ls8')
 print(cpu.ram)
+cpu.run()
