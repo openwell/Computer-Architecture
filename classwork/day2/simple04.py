@@ -6,9 +6,11 @@ import sys
 HALT = 1
 PRINT_TOM = 2
 PRINT_NUM = 3
-SAVE = 130 #4
+SAVE = 4
 PRINT_REG = 5
 ADD = 6
+PUSH = 7
+POP = 8
 
 
 
@@ -23,6 +25,7 @@ memory = [0] * 128 # 128 bytes of RAM
 
 # registers
 register = [0] * 8 # list of 8 registers
+SP = 7 # Stack pointer R7
 
 # state (running)
 running = True
@@ -57,7 +60,6 @@ def load_memory(filename):
 
                 # increment the address
                 address += 1
-        print(memory)
 
 
     except FileNotFoundError:
@@ -121,6 +123,33 @@ while running:
         instruction_size = 2
         reg = memory[pc + 1]
         print(register[reg])
+    
+    # DECODE
+    elif command == PUSH:
+        # EXECUTE
+        # SETUP
+        instruction_size = 2
+        reg = memory[pc + 1]
+        val = register[reg]
+
+        # PUSH
+        register[SP] -= 1
+        memory[register[SP]] = val
+
+    # DECODE
+    elif command == POP:
+        # EXECUTE
+        # SETUP
+        instruction_size = 2
+        reg = memory[pc + 1]
+        val = memory[register[SP]]
+
+        # POP
+        register[reg] = val
+        register[SP] += 1
+
+
+
 
     # DECODE (ERROR)
     else:
@@ -129,4 +158,3 @@ while running:
         sys.exit(1)
 
     pc += instruction_size
-

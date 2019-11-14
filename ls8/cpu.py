@@ -111,6 +111,12 @@ class CPU:
         MUL = 0b10100010 
         PRN = 0b01000111
         HLT = 0b00000001 
+        PUSH = 0b01000101
+        POP = 0b01000110
+        SP = 7
+        CALL = 0b01010000
+        RET = 0b00010001
+        ADD = 0b10100000
         running = True
         # looks like we need a converter for the binary
         while running:
@@ -129,12 +135,12 @@ class CPU:
             #     instruction_size = 2
             #     num = self.ram[self.pc + 1]
             #     print(num)
-            # elif command == ADD:
-            #     self.ir = command
-            #     instruction_size = 3
-            #     reg_a = self.ram[self.pc + 1]
-            #     reg_b = self.ram[self.pc + 2]
-            #     self.reg[reg_a] += self.reg[reg_b]
+            elif command == ADD:
+                self.ir = command
+                instruction_size = 3
+                reg_a = self.ram[self.pc + 1]
+                reg_b = self.ram[self.pc + 2]
+                self.reg[reg_a] += self.reg[reg_b]
             elif command == MUL:
                 self.ir = command
                 instruction_size = 3
@@ -147,10 +153,41 @@ class CPU:
                 instruction_size = 2
                 reg = self.ram[self.pc + 1]
                 print(self.reg[reg])
+            
+            elif command == PUSH:
+                instruction_size = 2
+                reg = self.ram[self.pc + 1]
+                val = self.reg[reg]
+                # PUSH
+                self.reg[SP] -= 1
+                self.ram[self.reg[SP]] = val
+
+            # DECODE
+            elif command == POP:
+                instruction_size = 2
+                reg = self.ram[self.pc + 1]
+                val = self.ram[self.reg[SP]]
+                # POP
+                self.reg[reg] = val
+                self.reg[SP] += 1
             elif command == HLT:
                 self.ir = command
                 instruction_size = 1
                 running = False
+            elif command == CALL:
+                instruction_size = 2
+                reg = self.ram[self.pc + 1]
+                # CALL
+                self.reg[SP] -= 1 # Decrement Stack Pointer
+                self.ram[self.reg[SP]] = self.pc + 2 # Push PC + 2 on to the stack
+                # set pc to subroutine
+                self.pc = self.reg[reg]
+                instruction_size = 0
+
+            elif command == RET:
+                self.pc = self.ram[self.reg[SP]]
+                self.reg[SP] += 1
+                instruction_size = 0
             else:
                 print(f"Unknown Instruction {command}")
                 sys.exit(1)
